@@ -1,23 +1,28 @@
 import os
-from dataclasses import dataclass
 import streamlit as st
 from dotenv import load_dotenv
 
-# Загружаем .env (должен лежать рядом с кодом)
 load_dotenv()
 
-@dataclass
 class Config:
-    OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
-    GPT_MODEL: str = "gpt-4-turbo"
-    TRANSCRIBE_MODEL: str = "whisper-1"
-    TEMP_TRANSCRIBE: float = 0.2
-    TEMP_SUMMARY: float = 0.5
+    def __init__(self):
+        self.OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+        self.GPT_MODEL = "gpt-4-turbo"
+        self.TRANSCRIBE_MODEL = "whisper-1"
+        self.TEMP_TRANSCRIBE = 0.2
+        self.TEMP_SUMMARY = 0.5
 
 @st.cache_resource
-def get_config() -> Config:
+def get_config():
     # Если ключ не задан в .env, запрашиваем вручную
     if not os.getenv("OPENAI_API_KEY"):
-        key = st.text_input("Введите OpenAI API Key", type="password")
-        os.environ["OPENAI_API_KEY"] = key
+        key = st.sidebar.text_input("Введите OpenAI API Key", type="password")
+        if key:
+            os.environ["OPENAI_API_KEY"] = key
+            st.rerun()
+    
+    if not os.getenv("OPENAI_API_KEY"):
+        st.error("🔑 Требуется OpenAI API Key! Добавьте его в .env или введите в боковой панели")
+        st.stop()
+    
     return Config()
