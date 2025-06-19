@@ -2,7 +2,7 @@ import os
 import time
 import streamlit as st
 from audio_utils import prepare_audio
-from openai_utils import transcribe_audio, generate_document
+from openai_utils import transcribe_audio, analyze_categories
 from config import get_config
 
 # Инициализация конфига
@@ -27,63 +27,105 @@ st.markdown("""
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         margin-bottom: 1.5rem;
     }
-    .new-category { border-left: 5px solid #FF4B4B; background-color: #fff0f0; }
-    .existing-category { border-left: 5px solid #0F9D58; background-color: #f0fff0; }
-    .keep-category { border-left: 5px solid #4285F4; background-color: #f0f8ff; }
-    .download-section {
-        background: #f8f9fa;
+    .decision-box {
+        padding: 1.5rem;
         border-radius: 10px;
-        padding: 1rem;
+        margin-bottom: 1.5rem;
+        font-weight: bold;
+        font-size: 1.2rem;
+        text-align: center;
+    }
+    .approved { background-color: #d4edda; color: #155724; border: 2px solid #c3e6cb; }
+    .rejected { background-color: #f8d7da; color: #721c24; border: 2px solid #f5c6cb; }
+    .rule-item {
+        padding: 0.8rem;
+        margin-bottom: 0.5rem;
+        border-left: 4px solid #3498db;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+    .detected-item {
+        background: #fff3cd;
+        padding: 0.8rem;
+        border-radius: 8px;
+        margin: 0.5rem 0;
+        border-left: 4px solid #ffc107;
+    }
+    .reason-box {
+        background: #e2e3e5;
+        padding: 1.2rem;
+        border-radius: 8px;
         margin-top: 1rem;
     }
-    .result-card {
-        background: white;
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-    }
-    .section-title {
-        color: #2c3e50;
-        border-bottom: 2px solid #3498db;
-        padding-bottom: 0.5rem;
-        margin-bottom: 1rem;
-    }
-    .rule-item {
+    .category-header {
+        background: #6c757d;
+        color: white;
         padding: 0.5rem 1rem;
-        margin-bottom: 0.5rem;
-        border-left: 3px solid #3498db;
-        background: #f8f9fa;
+        border-radius: 6px;
+        margin-top: 1.5rem;
+    }
+    .highlight {
+        background-color: #fffacd;
+        padding: 0.2rem 0.4rem;
+        border-radius: 4px;
     }
 </style>
 """, unsafe_allow_html=True)
 
 # Заголовок
 st.title("🎙️ Анализ разговоров → 📋 Категории брака")
-st.caption("Загрузите запись разговора → Получите транскрипцию и структурированный документ с категориями")
+st.caption("Загрузите запись разговора → Получите анализ категорий брака и решение по передаче лида")
 
 # Правила категорий
 with st.expander("📋 Правила категоризации брака", expanded=True):
-    st.subheader("Новые категории (с 12.06)")
-    st.markdown("""
-    <div class="rule-item">1. <span class="highlight">Нет времени</span> → Ставим напоминание перезвонить</div>
-    <div class="rule-item">2. <span class="highlight">Неуверенность в сумме долга</span> → 
-        <ul>
-            <li>Если >300 тыс. руб. → передаем</li>
-            <li>Если неуверен → уточняем и перезваниваем</li>
-        </ul>
-    </div>
-    """, unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
     
-    st.subheader("Категории брака (с 09.06)")
-    st.markdown("""
-    <div class="rule-item">1. <span class="highlight">Ипотека</span> → не передаем (нет заказчика)</div>
-    <div class="rule-item">2. <span class="highlight">Автокредит</span> → не передаем (нет заказчика)</div>
-    <div class="rule-item">3. <span class="highlight">Высокий доход</span> → считаем формулу</div>
-    <div class="rule-item">4. <span class="highlight">Не в городе</span> → ставим задачу на перезвон</div>
-    <div class="rule-item">5. <span class="highlight">Просто интересно</span> → не лид</div>
-    <div class="rule-item">6. <span class="highlight">Хотят всё бесплатно</span> → не лид</div>
-    """, unsafe_allow_html=True)
+    with col1:
+        st.subheader("Критические категории (автоотказ)")
+        st.markdown("""
+        <div class="rule-item">
+            <b>1. Ипотека</b> → нет заказчика на залоги → <span class="highlight">ОТКАЗ</span>
+        </div>
+        <div class="rule-item">
+            <b>2. Автокредит</b> → нет заказчика на залоги → <span class="highlight">ОТКАЗ</span>
+        </div>
+        <div class="rule-item">
+            <b>3. Высокий доход</b> → считаем формулу → <span class="highlight">ОТКАЗ</span>
+        </div>
+        <div class="rule-item">
+            <b>4. Не в городе</b> → ставим задачу на перезвон → <span class="highlight">ОТКАЗ</span>
+        </div>
+        <div class="rule-item">
+            <b>5. Просто интересно</b> → не лид → <span class="highlight">ОТКАЗ</span>
+        </div>
+        <div class="rule-item">
+            <b>6. Хотят всё бесплатно</b> → не лид → <span class="highlight">ОТКАЗ</span>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.subheader("Условные категории")
+        st.markdown("""
+        <div class="rule-item">
+            <b>1. Нет времени</b> → 
+            <ul>
+                <li>Нельзя фиксировать как лид → <span class="highlight">ОТКАЗ</span></li>
+                <li>Ставим напоминание перезвонить</li>
+                <li>Исключение: запись на ближайшие часы → <span class="highlight">ПЕРЕДАВАТЬ</span></li>
+            </ul>
+        </div>
+        <div class="rule-item">
+            <b>2. Неуверенность в сумме долга</b> → 
+            <ul>
+                <li>Считает, что >300 тыс. руб. → <span class="highlight">ПЕРЕДАВАТЬ</span></li>
+                <li>Не уверен → уточнить и перезвонить → <span class="highlight">ОТКАЗ</span></li>
+                <li>Проверить вместе на сайте ФССП</li>
+            </ul>
+        </div>
+        <div class="rule-item">
+            <b>Остальные случаи</b> → <span class="highlight">ПЕРЕДАВАТЬ</span>
+        </div>
+        """, unsafe_allow_html=True)
 
 # Главный контейнер
 with st.container():
@@ -121,11 +163,11 @@ with st.container():
             transcript = transcribe_audio(wav_file)
             st.session_state.transcript = transcript
             
-            # Шаг 3: Генерация документа
+            # Шаг 3: Анализ категорий
             time.sleep(0.5)
             progress_bar.progress(65, text="Анализ категорий брака...")
-            document = generate_document(transcript)
-            st.session_state.document = document
+            analysis_result = analyze_categories(transcript)
+            st.session_state.analysis = analysis_result
             
             # Завершение
             time.sleep(0.5)
@@ -144,47 +186,76 @@ with st.container():
             st.stop()
     
     # Отображение результатов
-    if st.session_state.get("document"):
+    if st.session_state.get("analysis"):
         with col2:
             st.subheader("2. Результаты анализа")
+            analysis = st.session_state.analysis
             
             # Транскрипт
-            with st.expander("📝 Полная транскрипция разговора", expanded=True):
+            with st.expander("📝 Полная транскрипция разговора", expanded=False):
                 st.text_area("Транскрипция", 
                             st.session_state.transcript, 
-                            height=300,
+                            height=200,
                             label_visibility="collapsed")
             
-            # Документ с категориями
-            st.subheader("📋 Категории брака", divider="blue")
-            document = st.session_state.document
+            # Решение по записи
+            st.subheader("📋 Решение по записи", divider="blue")
             
-            # Автоматическое форматирование документа
-            sections = {
-                "Новые категории": "new-category",
-                "Категории брака": "existing-category",
-                "Оставляем": "keep-category"
-            }
+            if analysis["decision"] == "ПЕРЕДАВАТЬ":
+                decision_class = "approved"
+                decision_icon = "✅"
+            else:
+                decision_class = "rejected"
+                decision_icon = "❌"
+                
+            st.markdown(
+                f'<div class="decision-box {decision_class}">'
+                f'{decision_icon} {analysis["decision"]}'
+                f'</div>',
+                unsafe_allow_html=True
+            )
             
-            for section, css_class in sections.items():
-                start_idx = document.find(f"### {section}")
-                if start_idx >= 0:
-                    end_idx = document.find("###", start_idx + 1)
-                    content = document[start_idx:end_idx].strip() if end_idx != -1 else document[start_idx:]
-                    
-                    # Извлекаем только список
-                    if ":" in content:
-                        content = content.split(":", 1)[1].strip()
-                    
-                    with st.container():
-                        st.markdown(f'<div class="category-box {css_class}">'
-                                   f'<h3>{section}</h3>'
-                                   f'<div style="margin-top:0.5rem">{content}</div>'
-                                   f'</div>', 
-                                   unsafe_allow_html=True)
+            # Причина решения
+            st.markdown(
+                f'<div class="reason-box">'
+                f'<b>Причина:</b> {analysis["reason"]}'
+                f'</div>',
+                unsafe_allow_html=True
+            )
+            
+            # Обнаруженные категории
+            if analysis["detected_categories"]:
+                st.subheader("🔍 Обнаруженные категории брака", divider="blue")
+                
+                for category in analysis["detected_categories"]:
+                    status = "🟢 ПЕРЕДАВАТЬ" if category["status"] == "approved" else "🔴 ОТКАЗ"
+                    st.markdown(
+                        f'<div class="detected-item">'
+                        f'<b>{category["name"]}</b> → {status}<br>'
+                        f'<i>Обоснование:</i> {category["explanation"]}'
+                        f'</div>',
+                        unsafe_allow_html=True
+                    )
+            else:
+                st.success("✅ Категории брака не обнаружены - запись передается")
             
             # Секция скачивания
             st.subheader("💾 Сохранить результаты", divider="gray")
+            
+            # Формируем текстовый отчёт для скачивания
+            report = f"Анализ разговора: {uploaded.name}\n\n"
+            report += f"Решение: {analysis['decision']}\n"
+            report += f"Причина: {analysis['reason']}\n\n"
+            
+            if analysis["detected_categories"]:
+                report += "Обнаруженные категории брака:\n"
+                for cat in analysis["detected_categories"]:
+                    status = "ПЕРЕДАВАТЬ" if cat["status"] == "approved" else "ОТКАЗ"
+                    report += f"- {cat['name']} → {status}\n"
+                    report += f"  Обоснование: {cat['explanation']}\n\n"
+            
+            report += "\n\nТранскрипция разговора:\n"
+            report += st.session_state.transcript
             
             col1, col2 = st.columns(2)
             with col1:
@@ -197,9 +268,9 @@ with st.container():
                 )
             with col2:
                 st.download_button(
-                    label="Скачать документ с категориями",
-                    data=st.session_state.document,
-                    file_name="категории_брака.txt",
+                    label="Скачать полный отчёт",
+                    data=report,
+                    file_name="анализ_категорий_брака.txt",
                     mime="text/plain",
                     use_container_width=True
                 )

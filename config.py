@@ -7,14 +7,13 @@ load_dotenv()
 class Config:
     def __init__(self):
         self.OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
-        self.GPT_MODEL = "gpt-4.1-nano"
+        self.GPT_MODEL = "gpt-4-turbo"
         self.TRANSCRIBE_MODEL = "whisper-1"
         self.TEMP_TRANSCRIBE = 0.2
         self.TEMP_SUMMARY = 0.5
 
 @st.cache_resource
 def get_config():
-    # Если ключ не задан в .env, запрашиваем вручную
     if not os.getenv("OPENAI_API_KEY"):
         key = st.sidebar.text_input("Введите OpenAI API Key", type="password")
         if key:

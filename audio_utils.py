@@ -1,7 +1,6 @@
 import os
 import tempfile
 from pydub import AudioSegment
-import streamlit as st
 
 ALLOWED_EXT = [".mp3", ".wav"]
 
