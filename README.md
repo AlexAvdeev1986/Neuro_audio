@@ -26,11 +26,7 @@ python3.9 --version
 # ## Установка зависимостей
 # Выполните эту ячейку для установки необходимых библиотек
 
-pip install -q python-telegram-bot openai yt-dlp whisper noisereduce soundfile numpy tqdm pydub nest_asyncio
-
-# Зта установка помогает избежать несовместимостей и неожиданных изменений в API, которые могут возникнуть при обновлении до более новой версии.
-
-pip install openai==0.28
+pip install openai>=1.0.0 python-dotenv pydub streamlit tqdm pydub
 
 # Для обработки аудио
 
@@ -43,14 +39,11 @@ sudo dnf install -y ffmpeg > /dev/null
 
 pip install git+https://github.com/openai/whisper.git 
 
-Как запускать
 
-# bash
-pip install openai>=1.0.0 python-dotenv pydub streamlit
-
-
-# Проще
+# Или Проще
 pip install -r requirements.txt
+
+# Как запускать
 
 streamlit run app.py
 
