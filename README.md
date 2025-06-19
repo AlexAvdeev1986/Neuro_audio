@@ -46,13 +46,11 @@ pip install git+https://github.com/openai/whisper.git
 Как запускать
 
 # bash
-pip install python-dotenv
+pip install openai>=1.0.0 python-dotenv pydub streamlit
 
 
 # Проще
 pip install -r requirements.txt
 
-
-pip install streamlit openai pydub
 streamlit run app.py
 
