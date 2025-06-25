@@ -7,7 +7,7 @@ load_dotenv()
 class Config:
     def __init__(self):
         self.OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
-        self.GPT_MODEL = "gpt-4-turbo"
+        self.GPT_MODEL = "gpt-4.1-nano"
         self.TRANSCRIBE_MODEL = "whisper-1"
         self.TEMP_TRANSCRIBE = 0.2
         self.TEMP_SUMMARY = 0.5
