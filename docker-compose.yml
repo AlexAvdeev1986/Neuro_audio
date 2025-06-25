@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  neuro_audio_app:
+    build: .
+    container_name: neuro_audio_app
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./app:/app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  neuro_audio_nginx:
+    image: nginx:alpine
+    container_name: neuro_audio_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl-params.conf:/etc/nginx/ssl-params.conf
+      - /etc/letsencrypt:/etc/letsencrypt
+    depends_on:
+      neuro_audio_app:
+        condition: service_healthy
