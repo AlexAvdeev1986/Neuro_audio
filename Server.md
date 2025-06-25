@@ -43,6 +43,7 @@ sudo apt install -y ffmpeg > /dev/null
 pip install git+https://github.com/openai/whisper.git 
 
 # устанавливаем зависимости
+cd app
 pip install -r requirements.txt
 
 # Обновление системы
