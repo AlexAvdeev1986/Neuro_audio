@@ -5,6 +5,16 @@
 ## Подготовка сервера
 
 ```bash
+
+# Установка виртуального окружения
+sudo apt install python3.10-venv
+apt install python3-pip
+sudo apt install git
+
+python3 -m venv venv
+source venv/bin/activate
+git clone https://github.com/AlexAvdeev1986/Neuro_audio.git
+
 # Обновление системы
 sudo apt update && sudo apt upgrade -y
 
