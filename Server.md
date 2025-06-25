@@ -26,6 +26,7 @@ sudo apt install git
 # Клонируем репозиторий
 git clone https://github.com/AlexAvdeev1986/Neuro_audio.git
 
+cd Neuro_audio
 python3 -m venv venv
 source venv/bin/activate
 
@@ -36,6 +37,10 @@ sudo apt install -y ffmpeg
 
 # Если проблеммы то
 sudo apt install -y ffmpeg > /dev/null  
+
+# Для Транскрибации аудиофайлов
+
+pip install git+https://github.com/openai/whisper.git 
 
 # устанавливаем зависимости
 pip install -r requirements.txt
