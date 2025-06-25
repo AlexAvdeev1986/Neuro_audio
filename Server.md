@@ -1,6 +1,19 @@
 # Развертывание проекта Neuro_audio на сервере Ubuntu
 
 Полная инструкция по развертыванию проекта Neuro_audio на сервере Ubuntu с использованием Docker, HTTPS и кастомного домена.
+/opt/neuro_audio/
+├── docker-compose.yml
+├── Dockerfile
+├── .env
+├── nginx/
+│   ├── nginx.conf
+│   └── ssl-params.conf
+└── app/
+    ├── app.py
+    ├── audio_utils.py
+    ├── config.py
+    ├── openai_utils.py
+    └── requirements.txt  
 
 ## Подготовка сервера
 
@@ -10,10 +23,12 @@
 sudo apt install python3.10-venv
 apt install python3-pip
 sudo apt install git
+# Клонируем репозиторий
+git clone https://github.com/AlexAvdeev1986/Neuro_audio.git
 
 python3 -m venv venv
 source venv/bin/activate
-git clone https://github.com/AlexAvdeev1986/Neuro_audio.git
+
 
 # Для обработки аудио
 
