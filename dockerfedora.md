@@ -40,18 +40,11 @@ rm -rf test-docker
 
 ## Если ничего не помогает: Установка через Flatpak
 
-# 1. Установка Flatpak
-sudo dnf install -y flatpak
+Install Docker Desktop
+To install Docker Desktop on Fedora:
 
-# 2. Добавление репозитория Flathub
-flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+Set up Docker's [package repository](https://docs.docker.com/engine/install/fedora/#set-up-the-repository).
 
-# 3. Установка Docker Desktop через Flatpak
-flatpak install flathub com.docker.desktop
+Download the latest [RPM package](https://desktop.docker.com/linux/main/amd64/docker-desktop-x86_64.rpm?utm_source=docker&utm_medium=webreferral&utm_campaign=docs-driven-download-linux-amd64&_gl=1*17dgvp8*_gcl_au*MTIwMzk4NDkyLjE3NTA4NjY4NjM.*_ga*ODY4NzUxMjQyLjE3NTA4NjY4NjQ.*_ga_XJWPQMJYHQ*czE3NTA4Njg5OTIkbzIkZzEkdDE3NTA4NjkxOTgkajYwJGwwJGgw). For checksums, see the Release notes. https://docs.docker.com/desktop/release-notes/
 
-# 4. Запуск Docker Desktop
-flatpak run com.docker.desktop
-
-# 5. Настройка командной строки
-echo "alias docker='flatpak run com.docker.desktop docker'" >> ~/.bashrc
-source ~/.bashrc
+Install the package with dnf as follows:
