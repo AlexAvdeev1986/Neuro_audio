@@ -78,7 +78,7 @@ sudo dnf install -y ffmpeg > /dev/null
 pip install git+https://github.com/openai/whisper.git 
 
 
-# Или Проще
+# устанавливаем зависимости
 pip install -r requirements.txt
 ```
 

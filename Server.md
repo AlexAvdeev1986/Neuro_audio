@@ -15,6 +15,16 @@ python3 -m venv venv
 source venv/bin/activate
 git clone https://github.com/AlexAvdeev1986/Neuro_audio.git
 
+# Для обработки аудио
+
+sudo apt install -y ffmpeg
+
+# Если проблеммы то
+sudo apt install -y ffmpeg > /dev/null  
+
+# устанавливаем зависимости
+pip install -r requirements.txt
+
 # Обновление системы
 sudo apt update && sudo apt upgrade -y
 
