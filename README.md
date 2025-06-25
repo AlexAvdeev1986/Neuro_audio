@@ -49,7 +49,37 @@ graph TD
 
 1. Установите зависимости:
 ```bash
-pip install openai streamlit pydub python-dotenv
+
+python -m venv venv
+source venv/bin/activate
+
+# Или Чтобы использовать Python 3.9 в проектах, создавайте виртуальные окружения:
+```bash
+python3.9 -m venv venv
+source venv/bin/activate
+
+python3.9 --version
+
+
+# ## Установка зависимостей
+# Выполните эту ячейку для установки необходимых библиотек
+
+pip install openai>=1.0.0 python-dotenv pydub streamlit tqdm pydub
+
+# Для обработки аудио
+
+sudo dnf install -y ffmpeg
+
+# Если проблеммы то
+sudo dnf install -y ffmpeg > /dev/null  
+
+# Для Транскрибации аудиофайлов
+
+pip install git+https://github.com/openai/whisper.git 
+
+
+# Или Проще
+pip install -r requirements.txt
 ```
 
 2. Запустите приложение:
@@ -97,37 +127,4 @@ MIT License - свободное использование и модифика�
 ---
 
 **Превращаем разговоры в данные, а данные - в решения!** 💼✨
-
-
-# Чтобы использовать Python 3.9 в проектах, создавайте виртуальные окружения:
-```bash
-python3.9 -m venv venv
-source venv/bin/activate
-
-python3.9 --version
-
-
-# ## Установка зависимостей
-# Выполните эту ячейку для установки необходимых библиотек
-
-pip install openai>=1.0.0 python-dotenv pydub streamlit tqdm pydub
-
-# Для обработки аудио
-
-sudo dnf install -y ffmpeg
-
-# Если проблеммы то
-sudo dnf install -y ffmpeg > /dev/null  
-
-# Для Транскрибации аудиофайлов
-
-pip install git+https://github.com/openai/whisper.git 
-
-
-# Или Проще
-pip install -r requirements.txt
-
-# Как запускать
-
-streamlit run app.py
 

@@ -1,5 +1,4 @@
 app.py
-
 import os
 import time
 import streamlit as st
@@ -278,8 +277,8 @@ with st.container():
                 )
                 
 
-audio_utils.py
 
+audio_utils.py
 import os
 import tempfile
 from pydub import AudioSegment
@@ -302,7 +301,6 @@ def prepare_audio(uploaded_file) -> str:
         return wav_path
 
     return tmp_path
-
 
 
 config.py
@@ -337,7 +335,6 @@ def get_config():
 
 
 openai_utils.py
-
 
 import json
 import streamlit as st
@@ -429,4 +426,5 @@ def analyze_categories(transcript: str) -> dict:
     except Exception as e:
         st.error(f"🚨 Ошибка анализа: {str(e)}")
         st.stop()
+        
         
