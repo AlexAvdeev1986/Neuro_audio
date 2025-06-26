@@ -1,59 +1,27 @@
-version: '3'
+version: '3.8'
+
 services:
-
-  nginx-proxy:
-    image: jwilder/nginx-proxy
-    container_name: nginx-proxy
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - /var/run/docker.sock:/tmp/docker.sock:ro
-      - ./certs:/etc/nginx/certs:ro
-      - ./vhost.d:/etc/nginx/vhost.d
-      - ./html:/usr/share/nginx/html
-      - ./nginx.conf:/etc/nginx/conf.d/custom.conf:ro
-    restart: always
-    networks:
-      - webproxy
-
-  nginx-proxy-letsencrypt:
-    image: jrcs/letsencrypt-nginx-proxy-companion
-    container_name: nginx-proxy-letsencrypt
-    environment:
-      - NGINX_PROXY_CONTAINER=nginx-proxy
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./certs:/etc/nginx/certs:rw
-      - ./vhost.d:/etc/nginx/vhost.d
-      - ./html:/usr/share/nginx/html
-    restart: always
-    networks:
-      - webproxy
-
-  neuro-audio:
+  neuroaudio:
     build: .
-    container_name: neuro-audio
+    container_name: neuroaudio_app
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8501:8501"
     environment:
-      - VIRTUAL_HOST=neuroaudio777.ddns.net
-      - LETSENCRYPT_HOST=neuroaudio777.ddns.net
-      - LETSENCRYPT_EMAIL=ea703557@gmail.com
-    expose:
-      - "5000"
-    restart: always
-    networks:
-      - webproxy
-
-  watchtower:
-    image: containrrr/watchtower
-    container_name: watchtower
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    command: --cleanup --interval 300
-    restart: always
-    networks:
-      - webproxy
-
-networks:
-  webproxy:
-    external: false
+      - ./logs:/app/logs
+      - /tmp/audio_temp:/tmp/audio_temp
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 512M
+          
