@@ -209,3 +209,31 @@ https://neuroaudio777.ddns.net
 * GitHub Actions CI/CD + DockerHub
 * VPS с auto-deploy через CapRover/Portainer
 
+🔹 Все запущенные контейнеры:
+bash
+Copy
+Edit
+docker ps
+🔹 Все контейнеры, включая остановленные:
+bash
+Copy
+Edit
+docker ps -a
+❌ Удаление контейнеров
+🔹 Удалить один контейнер:
+bash
+Copy
+Edit
+docker stop <container_id>
+docker rm <container_id>
+Например:
+
+bash
+docker rm d4f5b1c3f6ab
+🔹 Удалить все остановленные контейнеры:
+bash
+Copy
+Edit
+docker container prune
+Будет подтверждение y/n — нажми y.
+
