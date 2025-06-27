@@ -3,6 +3,8 @@
 ## 1. Подготовка сервера Ubuntu
 
 ```bash
+# Клонируем репозиторий
+git clone https://github.com/AlexAvdeev1986/neuroaudio.git
 ```bash
 ## Полное руководство по развертыванию Neuro_audio на Ubuntu сервере
 1. Подготовка сервера Ubuntu
@@ -17,9 +19,6 @@ apt install python3-pip
 sudo apt install git
 
 ```bash
-# Клонируем репозиторий
-git clone https://github.com/AlexAvdeev1986/neuroaudio.git
-
 cd neuroaudio
 python3 -m venv venv
 source venv/bin/activate
@@ -147,14 +146,15 @@ services:
 ```
 
 ### .env файл
-```env
+```touch .env
+nano .env
 OPENAI_API_KEY=your_openai_api_key_here
 ```
 
 ```bash
 ## 4. Настройка Nginx
 
-### /etc/nginx/sites-available/neuroaudio
+### nano /etc/nginx/sites-available/neuroaudio
 ```nginx
 server {
     listen 80;
@@ -282,7 +282,7 @@ echo "Neuroaudio обновлен и перезапущен!"
 
 ## 6. Системный сервис (опционально)
 
-### /etc/systemd/system/neuroaudio.service
+### nano /etc/systemd/system/neuroaudio.service
 ```ini
 [Unit]
 Description=Neuroaudio Docker Service
@@ -292,7 +292,7 @@ After=docker.service
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-WorkingDirectory=/opt/neuroaudio
+WorkingDirectory=/root/neuroaudio
 ExecStart=/usr/local/bin/docker-compose up -d
 ExecStop=/usr/local/bin/docker-compose down
 TimeoutStartSec=0
@@ -307,8 +307,8 @@ WantedBy=multi-user.target
 ```bash
 # Создание директории
 sudo mkdir -p /opt/neuroaudio
-sudo chown $USER:$USER /opt/neuroaudio
-cd /opt/neuroaudio
+sudo chown $USER:$USER neuroaudio
+cd neuroaudio
 
 # Копирование ваших файлов Python
 # app.py, audio_utils.py, openai_utils.py, config.py
@@ -322,14 +322,14 @@ echo "OPENAI_API_KEY=your_actual_api_key_here" > .env
 
 ### 2. Настройка прав доступа
 ```bash
-chmod +x /opt/neuroaudio/*.sh
-sudo chown -R $USER:$USER /opt/neuroaudio
+chmod +x neuroaudio/*.sh
+sudo chown -R $USER:$USER neuroaudio
 ```
 
 ### 3. Настройка Nginx
 ```bash
 # Создание конфига Nginx
-sudo cp /opt/neuroaudio/nginx.conf /etc/nginx/sites-available/neuroaudio
+sudo cp neuroaudio/nginx.conf /etc/nginx/sites-available/neuroaudio
 sudo ln -s /etc/nginx/sites-available/neuroaudio /etc/nginx/sites-enabled/
 sudo rm /etc/nginx/sites-enabled/default
 
@@ -383,7 +383,7 @@ docker stats
 
 ### Настройка ротации логов
 ```bash
-# /etc/logrotate.d/neuroaudio
+# nano /etc/logrotate.d/neuroaudio
 /opt/neuroaudio/logs/*.log {
     daily
     rotate 30
@@ -393,10 +393,9 @@ docker stats
     notifempty
     create 0644 root root
     postrotate
-        docker-compose -f /opt/neuroaudio/docker-compose.yml restart neuroaudio
+        docker-compose -f /root/neuroaudio/docker-compose.yml restart neuroaudio
     endscript
 }
-```
 
 ## 9. Бэкап и восстановление
 
@@ -434,7 +433,7 @@ sudo ufw enable
 ```bash
 sudo apt install fail2ban -y
 
-# /etc/fail2ban/jail.local
+# nano /etc/fail2ban/jail.local
 [nginx-http-auth]
 enabled = true
 filter = nginx-http-auth
@@ -457,3 +456,11 @@ maxretry = 6
 2. Убедитесь, что сайт загружается по HTTPS
 3. Проверьте, что приложение работает корректно
 4. Загрузите тестовый аудиофайл
+
+## Если нужно удалить docker контейнеры 
+1. 📦 Очисти Docker
+```bash
+docker ps
+docker stop <id container>
+docker rm <id container>
+docker system prune -a --volumes
